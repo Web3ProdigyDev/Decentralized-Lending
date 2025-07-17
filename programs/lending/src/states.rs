@@ -29,4 +29,3 @@ pub struct Bank {
     pub max_ltv: u64,
 }
 
-
