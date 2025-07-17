@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 
 #[account]
-#[derive(Initspace)]
+#[derive(InitSpace)]
 pub struct User {
     pub owner: Pubkey,
     pub deposited_sol: u64,
@@ -13,11 +13,11 @@ pub struct User {
     pub borrowed_usdc: u64,
     pub borrowed_usdc_shares: u64,
     pub usdc_address: Pubkey,
-    pub last_updated: i64,   
+    pub last_updated: i64,
 }
 
 #[account]
-#[derive(Initspace)]
+#[derive(InitSpace)]
 pub struct Bank {
     pub authority: Pubkey,
     pub mint_address: Pubkey,
@@ -28,4 +28,3 @@ pub struct Bank {
     pub liquidation_close_factor: u64,
     pub max_ltv: u64,
 }
-

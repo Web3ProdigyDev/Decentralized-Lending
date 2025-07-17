@@ -1,6 +1,7 @@
-use anchor_spl::token_interface::{Mint, TokenAccount, TokenInterface, User};
+use anchor_lang::prelude::*;
+use anchor_spl::token_interface::{Mint, TokenAccount, TokenInterface};
 
-use crate:: state::Bank;
+use crate::state::{Bank, User};
 
 #[derive(Accounts)]
 pub struct InitBank<'info> {
@@ -11,13 +12,13 @@ pub struct InitBank<'info> {
 
     #[account(
         init,
-        payer = signer,
         space = 8 + Bank::INIT_SPACE,
+        payer = signer,
         seeds = [mint.key().as_ref()],
         bump,
     )]
     pub bank: Account<'info, Bank>,
-    
+
     #[account(
         init,
         token::mint = mint,
@@ -44,21 +45,25 @@ pub struct InitUser<'info> {
         bump,
     )]
     pub user_account: Account<'info, User>,
-    
+
     pub system_program: Program<'info, System>,
 }
 
-pub fn process_init_bank(ctx: Context<InitBank>, liquidation_threshold: u64, max_ltv: u64) -> Result<()> {
-    let bank = &mut Account<'_, Bank> = &mut ctx.accounts.bank;
+pub fn process_init_bank(
+    ctx: Context<InitBank>,
+    liquidation_threshold: u64,
+    max_ltv: u64,
+) -> Result<()> {
+    let bank: &mut Account<'_, Bank> = &mut ctx.accounts.bank;
     bank.authority = ctx.accounts.signer.key();
     bank.liquidation_threshold = liquidation_threshold;
     bank.max_ltv = max_ltv;
     Ok(())
 }
 
-pub fn process_init_user(ctx: Context<InitUser>) -> Result<()> {
-    let user_account: &mut Account<'_, User> = &mut ctx.accounts.user_account;
-    user_account.owner = ctx.accounts.signer.key();
-    user_account.usdc_address = usdc_address;
+pub fn process_init_user(ctx: Context<InitUser>, usdc_address: Pubkey) -> Result<()> {
+    let user = &mut ctx.accounts.user_account;
+    user.owner = ctx.accounts.signer.key();
+    user.usdc_address = usdc_address;
     Ok(())
 }
