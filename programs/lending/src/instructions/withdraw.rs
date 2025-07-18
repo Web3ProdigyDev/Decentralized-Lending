@@ -85,5 +85,23 @@ pub fn process_withdraw(ctx: Context<Withdraw>, amount: u64) -> Result<()> {
 
     token_interface::transfer_checked(cpi_ctx, amount, decimals)?;
 
+    let bank = &mut ctx.accounts.bank;
+
+    let shares_to_remove =
+        (amount as f64 / bank.total_deposits as f64) * bank.total_deposited_shares as f64;
+
+    let user = &mut ctx.accounts.user_account;
+
+    if ctx.accounts.mint.to_account_info().key() == user.usdc_address {
+        user.deposited_usdc -= amount;
+        user.borrowed_usdc_shares -= shares_to_remove as u64;
+    } else {
+        user.deposited_sol -= amount;
+        user.borrowed_sol_shares -= shares_to_remove as u64;
+    }
+
+    bank.total_deposits -= amount;
+    bank.total_deposited_shares -= shares_to_remove as u64;
+
     Ok(())
 }
