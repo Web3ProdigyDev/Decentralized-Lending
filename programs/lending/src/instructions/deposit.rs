@@ -1,7 +1,6 @@
 use anchor_lang::prelude::*;
-use anchor_lang::system_program::Transfer;
 use anchor_spl::associated_token::AssociatedToken;
-use anchor_spl::token_interface::{Mint, TokenAccount, TokenInterface, TransferChecked};
+use anchor_spl::token_interface::{self, Mint, TokenAccount, TokenInterface, TransferChecked};
 
 use crate::state::{Bank, User};
 
@@ -61,4 +60,13 @@ pub fn process_deposit(ctx: Context<Deposit>, amount: u64) -> Result<()> {
         amount,
         decimals,
     )?;
+    let bank: &mut Account<'_, Bank> = &mut ctx.accounts.bank;
+
+    if bank.total_deposits == 0 {
+        bank.total_deposits = amount;
+        bank.total_deposited_shares = amount;
+    }
+
+    let deposit_ratio: u64 = amount.checked_div(bank.total_deposits).unwrap();
+    let user_shares = bank.total_deposited_shares.checked_mul(deposit_ratio).unwrap();
 }
