@@ -1,8 +1,9 @@
 use anchor_lang::prelude::*;
+use anchor_lang::system_program::Transfer;
 use anchor_spl::associated_token::AssociatedToken;
-use anchor_spl::token_interface::{Mint, TokenAccount, TokenInterface};
+use anchor_spl::token_interface::{Mint, TokenAccount, TokenInterface, TransferChecked};
 
-use crate::state::*;
+use crate::state::{Bank, User};
 
 #[derive(Accounts)]
 pub struct Deposit<'info> {
@@ -40,4 +41,24 @@ pub struct Deposit<'info> {
     pub token_program: Interface<'info, TokenInterface>,
     pub associated_token_program: Program<'info, AssociatedToken>,
     pub system_program: Program<'info, System>,
+}
+
+pub fn process_deposit(ctx: Context<Deposit>, amount: u64) -> Result<()> {
+    let transfer_cpi_accounts = TransferChecked {
+        from : ctx.accounts.user_token_account.to_account_info(),
+        to : ctx.accounts.bank_token_account.to_account_info(),
+        authority : ctx.accounts.signer.to_account_info(),
+        mint : ctx.accounts.mint.to_account_info(),
+    }
+
+    let cpi_program = AccountInfo<'_> = ctx.accounts.token_program.to_account_info();
+    let cpi_ctx: CpiContext<'_, '_, '_, '_, _>  = CpiContext::new(cpi_program, transfer_cpi_accounts);
+
+    let decimals = ctx.accounts.mint.decimals;
+
+    token_interface::transfer_checked(
+        cpi_ctx,
+        amount,
+        decimals,
+    )?;
 }
