@@ -94,10 +94,10 @@ pub fn process_withdraw(ctx: Context<Withdraw>, amount: u64) -> Result<()> {
 
     if ctx.accounts.mint.to_account_info().key() == user.usdc_address {
         user.deposited_usdc -= amount;
-        user.borrowed_usdc_shares -= shares_to_remove as u64;
+        user.deposited_usdc_shares -= shares_to_remove as u64;
     } else {
         user.deposited_sol -= amount;
-        user.borrowed_sol_shares -= shares_to_remove as u64;
+        user.deposited_sol_shares -= shares_to_remove as u64;
     }
 
     bank.total_deposits -= amount;

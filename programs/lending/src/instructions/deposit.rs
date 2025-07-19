@@ -48,7 +48,7 @@ pub fn process_deposit(ctx: Context<Deposit>, amount: u64) -> Result<()> {
         to : ctx.accounts.bank_token_account.to_account_info(),
         authority : ctx.accounts.signer.to_account_info(),
         mint : ctx.accounts.mint.to_account_info(),
-    }
+    };
 
     let cpi_program = AccountInfo<'_> = ctx.accounts.token_program.to_account_info();
     let cpi_ctx: CpiContext<'_, '_, '_, '_, _>  = CpiContext::new(cpi_program, transfer_cpi_accounts);
@@ -69,7 +69,7 @@ pub fn process_deposit(ctx: Context<Deposit>, amount: u64) -> Result<()> {
 
     let user: &mut Account<'_, User> = &mut ctx.accounts.user_account;
 
-    match ctc.accounts.mint.to_account_info().key() {
+    match ctx.accounts.mint.to_account_info().key() {
         key: Pubkey if key == user.user_usdc_address => {
             user.deposited_usdc += amount;
             user.deposited_usdc_shares += user_shares;
