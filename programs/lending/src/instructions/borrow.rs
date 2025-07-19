@@ -4,7 +4,7 @@ use anchor_spl::{
     token::{Mint, TokenAccount},
     token_interface::TokenInterface,
 };
-use pyth_solana_receiver_sdk::price_update::PriceUpdateV2;
+use pyth_solana_receiver_sdk::price_update::{self, PriceUpdateV2};
 
 use crate::state::{Bank, User};
 
@@ -50,4 +50,18 @@ pub struct Borrow<'info> {
     pub associated_token_program: Program<'info, AssociatedToken>,
 }
 
-pub fn process_borrow(ctx: Context<Borrow>, amount: u64) -> Result<()> {}
+pub fn process_borrow(ctx: Context<Borrow>, amount: u64) -> Result<()> {
+    let bank = &mut ctx.accounts.bank;
+    let user = &mut ctx.accounts.user_account;
+
+    let price_update: &Account<'_, PriceUpdateV2> = &mut ctx.accounts.price_update;
+    let total_collateral: u64;
+
+    match ctx.accounts.mint.to_account_info().key() {
+        key if key == user.usdc_address => {
+            total_collateral = user.deposited_usdc;
+        }
+    }
+
+    Ok(())
+}
