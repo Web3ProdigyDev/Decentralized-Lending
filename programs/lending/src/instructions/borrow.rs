@@ -137,7 +137,7 @@ pub fn process_borrow(ctx: Context<Borrow>, amount: u64) -> Result<()> {
         .unwrap();
 
     match ctx.accounts.mint.to_account_info().key() {
-        key: Pubkey if key == user.usdc_address => {
+        key if key == user.usdc_address => {
             user.borrowed_usdc += amount;
             user.borrowed_usdc_shares += user_shares;
         },
@@ -153,7 +153,7 @@ pub fn process_borrow(ctx: Context<Borrow>, amount: u64) -> Result<()> {
     Ok(())
 }
 
-fn calculate_accrued_interest(
+pub fn calculate_accrued_interest(
     deposited_value: u64,
     interest_rate: u64,
     last_updated: i64,

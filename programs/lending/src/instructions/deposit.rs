@@ -70,7 +70,7 @@ pub fn process_deposit(ctx: Context<Deposit>, amount: u64) -> Result<()> {
     let user: &mut Account<'_, User> = &mut ctx.accounts.user_account;
 
     match ctx.accounts.mint.to_account_info().key() {
-        key: Pubkey if key == user.user_usdc_address => {
+        key if key == user.user_usdc_address => {
             user.deposited_usdc += amount;
             user.deposited_usdc_shares += user_shares;
         },
