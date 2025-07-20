@@ -6,4 +6,6 @@ pub enum ErrorCode {
     InsufficientFunds,
     #[msg("Requested amount exceeds borrowable amount")]
     OverBorrowableAmount,
+    #[msg("Requested amount exceeds depositable amount")]
+    OverRepay,
 }
