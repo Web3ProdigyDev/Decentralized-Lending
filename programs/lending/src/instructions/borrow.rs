@@ -1,14 +1,12 @@
-use core::borrow;
 use std::f32::consts::E;
 
 use anchor_lang::prelude::*;
 use anchor_spl::{
     associated_token::AssociatedToken,
-    token::{Mint, TokenAccount, TransferChecked},
-    token_interface::{self, TokenInterface},
+    token::{Mint, TokenAccount},
+    token_interface::{TokenInterface},
 };
 use pyth_solana_receiver_sdk::{
-    error::GetPriceError,
     price_update::{get_feed_id_from_hex, PriceUpdateV2},
 };
 

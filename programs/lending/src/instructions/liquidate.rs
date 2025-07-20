@@ -1,3 +1,5 @@
+use std::f32::consts::E;
+
 use anchor_lang::prelude::*;
 use anchor_spl::{
     associated_token::AssociatedToken,
@@ -7,6 +9,7 @@ use pyth_solana_receiver_sdk::price_update::{get_feed_id_from_hex, PriceUpdateV2
 
 use crate::{
     constants::{MAX_AGE, SOL_USD_FEED_ID, USDC_USD_FEED_ID},
+    instructions::liquidate,
     state::{Bank, User},
 };
 
@@ -147,6 +150,32 @@ pub fn process_liquidate(ctx: Context<Liquidate>, amount: u64) -> Result<()> {
         .checked_mul(borrowed_bank.liquidation_close_factor)
         .unwrap();
     token_interface::transfer_checked(cpi_ctx, liquidation_amount, decimals)?;
+
+    let liquidator_amount =
+        (liquidation_amount * collateral_bank.liquidation_bonus) + liquidation_amount;
+
+    let transfer_to_liquidator = TransferChecked {
+        from: ctx.accounts.collateral_bank_token_account.to_account_info(),
+        to: ctx
+            .accounts
+            .liquidator_collateral_token_account
+            .to_account_info(),
+        authority: ctx.accounts.collateral_bank_token_account.to_account_info(),
+        mint: ctx.accounts.collateral_mint.to_account_info(),
+    };
+
+    let mint_key = ctx.accounts.collateral_mint.key();
+    let signer_seeds: &[&[&[u8]]] = &[&[
+        b"treasury",
+        mint_key.as_ref(),
+        &[ctx.bumps.collateral_bank_token_account],
+    ]];
+
+    let cpi_ctx_liquidator =
+        CpiContext::new(cpi_program.clone(), transfer_to_liquidator).with_signer(signer_seeds);
+
+    let collateral_decimals = ctx.accounts.collateral_mint.decimals;
+    token_interface::transfer_checked(cpi_ctx_liquidator, liquidator_amount, collateral_decimals)?;
 
     Ok(())
 }
