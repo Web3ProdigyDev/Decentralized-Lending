@@ -4,11 +4,9 @@ use anchor_lang::prelude::*;
 use anchor_spl::{
     associated_token::AssociatedToken,
     token::{Mint, TokenAccount},
-    token_interface::{TokenInterface},
+    token_interface::TokenInterface,
 };
-use pyth_solana_receiver_sdk::{
-    price_update::{get_feed_id_from_hex, PriceUpdateV2},
-};
+use pyth_solana_receiver_sdk::price_update::{get_feed_id_from_hex, PriceUpdateV2};
 
 use crate::error::ErrorCode;
 
@@ -64,7 +62,7 @@ pub fn process_borrow(ctx: Context<Borrow>, amount: u64) -> Result<()> {
     let user = &mut ctx.accounts.user_account;
 
     let price_update: &Account<'_, PriceUpdateV2> = &mut ctx.accounts.price_update;
-    let total_collateral: u64 -;
+    let total_collateral: u64;
 
     match ctx.accounts.mint.to_account_info().key() {
         key if key == user.usdc_address => {
@@ -138,7 +136,7 @@ pub fn process_borrow(ctx: Context<Borrow>, amount: u64) -> Result<()> {
         key if key == user.usdc_address => {
             user.borrowed_usdc += amount;
             user.borrowed_usdc_shares += user_shares;
-        },
+        }
         _ => {
             user.borrowed_sol += amount;
             user.borrowed_sol_shares += user_shares;
@@ -147,7 +145,6 @@ pub fn process_borrow(ctx: Context<Borrow>, amount: u64) -> Result<()> {
 
     user.last_updated_borrowed = Clock::get()?.unix_timestamp;
 
-    
     Ok(())
 }
 
