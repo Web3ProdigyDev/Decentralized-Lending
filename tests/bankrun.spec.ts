@@ -2,12 +2,12 @@ import { describe, it } from 'node:test';
 import IDL from '../target/idl/lending.json';
 import { Lending } from '../target/types/lending';
 import { BanksClient, ProgramTestContext, startAnchor } from 'solana-bankrun';
-import { Program } from '@coral-xyz/anchor';
+import { BN, Program } from '@coral-xyz/anchor';
 import { Connection, Keypair, PublicKey } from '@solana/web3.js';
 import { BankrunProvider } from 'anchor-bankrun';
 import { PythSolanaReceiver } from '@pythnetwork/pyth-solana-receiver';
 import { BankrunContextWrapper } from '../bankrun-utils/bankrunConnection';
-import { createMint } from '@solana/spl-token';
+import { createMint, mintTo, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 
 describe("Lending Smart Contract Test", async () => {
     let context: ProgramTestContext;
@@ -80,6 +80,30 @@ describe("Lending Smart Contract Test", async () => {
         [Buffer.from("treasury", mintSol.toBuffer())],
         program.programId
     );
+
+    it("Test Init and Fund Bank", async () => {
+        const initializeUSDCBankTx = await program.methods.initBank(new BN(1), new BN(1)).accounts( {
+            signer: signer.publicKey,
+            mint: mintUSDC,
+            tokenProgram: TOKEN_PROGRAM_ID,
+        })
+        .rpc( {commitment: "confirmed"} );
+
+        console.log("Create USDC Bank Account", initializeUSDCBankTx);
+
+        const amount = 10_000 + 10 ** 9;
+
+        const mintTx = await mintTo(
+            banksClient,
+            signer,
+            mintUSDC,
+            usdcBankAccount,
+            signer,
+            amount
+        );
+    });
+
+    console.log("Mint USDC to Bank:", mintTx);
 
 });
 
