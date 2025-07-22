@@ -2,12 +2,16 @@ use anchor_lang::prelude::*;
 
 #[error_code]
 pub enum ErrorCode {
-    #[msg("Insufficient funds")]
+    #[msg("Borrowed amount exceeds the maximum LTV.")]
+    OverLTV,
+    #[msg("Borrowed amount results in an under collateralized loan.")]
+    UnderCollateralized,
+    #[msg("Insufficient funds to withdraw.")]
     InsufficientFunds,
-    #[msg("Requested amount exceeds borrowable amount")]
-    OverBorrowableAmount,
-    #[msg("Requested amount exceeds depositable amount")]
+    #[msg("Attempting to repay more than borrowed.")]
     OverRepay,
-    #[msg("User is not under collateralized, cant be liquidated")]
-    NotUnderCollateralized,
+    #[msg("Attempting to borrow more than allowed.")]
+    OverBorrowableAmount,
+    #[msg("User is not undercollateralized.")]
+    NotUndercollateralized,
 }
